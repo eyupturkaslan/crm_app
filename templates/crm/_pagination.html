@@ -1,0 +1,23 @@
+{% load i18n %}
+{% if page_obj.paginator.num_pages > 1 %}
+<nav class="flex items-center justify-between pt-3 text-sm text-slate-500 dark:text-slate-400" aria-label="{% translate 'Sayfalama' %}">
+  <span>
+    {% blocktranslate with start=page_obj.start_index end=page_obj.end_index total=page_obj.paginator.count %}{{ start }}-{{ end }} / {{ total }}{% endblocktranslate %}
+  </span>
+  <div class="flex gap-1">
+    {% if page_obj.has_previous %}
+    <a class="btn-ghost" href="?{{ qs }}&amp;page={{ page_obj.previous_page_number }}"
+       hx-get="?{{ qs }}&amp;page={{ page_obj.previous_page_number }}" hx-target="#rows" hx-push-url="true">‹ {% translate "Önceki" %}</a>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+      {% if num == page_obj.number %}
+      <span class="btn-secondary" aria-current="true">{{ num }}</span>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+    <a class="btn-ghost" href="?{{ qs }}&amp;page={{ page_obj.next_page_number }}"
+       hx-get="?{{ qs }}&amp;page={{ page_obj.next_page_number }}" hx-target="#rows" hx-push-url="true">{% translate "Sonraki" %} ›</a>
+    {% endif %}
+  </div>
+</nav>
+{% endif %}

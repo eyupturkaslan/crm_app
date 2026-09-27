@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Kişileri İçe Aktar" %}{% endblock %}
+{% block content %}
+{% translate "Yükle" as submit_label %}
+<div class="max-w-lg space-y-4">
+  <h1 class="text-xl font-semibold">{% translate "Kişileri İçe Aktar" %}</h1>
+  <p class="text-sm text-slate-500 dark:text-slate-400">
+    {% translate "Sütun başlıkları: first_name, last_name, email, phone, job_title, company, lifecycle_stage, source. Aynı e-postaya sahip kişiler güncellenir." %}
+  </p>
+  {% include "crm/_form.html" with form=form cancel_url=cancel_url submit_label=submit_label %}
+</div>
+{% endblock %}

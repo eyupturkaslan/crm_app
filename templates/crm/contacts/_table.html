@@ -1,0 +1,37 @@
+{% load i18n %}
+<div class="card overflow-x-auto">
+<table class="table">
+  <thead>
+    <tr>
+      <th>{% translate "Kişi" %}</th>
+      <th>{% translate "Firma" %}</th>
+      <th>{% translate "Aşama" %}</th>
+      <th>{% translate "Skor" %}</th>
+      <th>{% translate "Sorumlu" %}</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for contact in page_obj %}
+    <tr>
+      <td>
+        <a href="{% url 'crm:contact_detail' contact.pk %}" class="font-medium hover:underline">{{ contact.full_name }}</a>
+        {% if contact.email %}<div class="text-xs text-slate-500">{{ contact.email }}</div>{% endif %}
+      </td>
+      <td>
+        {% if contact.company %}
+        <a href="{% url 'crm:company_detail' contact.company.pk %}" class="hover:underline">{{ contact.company.name }}</a>
+        {% else %}—{% endif %}
+      </td>
+      <td>{% include "crm/contacts/_lifecycle_badge.html" with contact=contact %}</td>
+      <td>{{ contact.score }}</td>
+      <td>{% if contact.owner %}{{ contact.owner.get_full_name|default:contact.owner.username }}{% else %}—{% endif %}</td>
+      <td class="text-right"><a href="{% url 'crm:contact_update' contact.pk %}" class="btn-ghost">{% translate "Düzenle" %}</a></td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="6" class="text-center text-slate-500 py-6">{% translate "Kişi bulunamadı." %}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% include "crm/_pagination.html" %}
+</div>

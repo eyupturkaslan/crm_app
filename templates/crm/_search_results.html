@@ -1,0 +1,36 @@
+{% load i18n %}
+<div class="card shadow-lg divide-y divide-slate-100 dark:divide-slate-800 max-h-96 overflow-auto">
+  {% if not contacts and not companies and not deals %}
+  <p class="p-3 text-sm text-slate-500">{% translate "Sonuç bulunamadı." %}</p>
+  {% endif %}
+  {% if contacts %}
+  <div class="p-2">
+    <p class="px-2 pb-1 text-xs font-semibold uppercase text-slate-400">{% translate "Kişiler" %}</p>
+    {% for c in contacts %}
+    <a href="{% url 'crm:contact_detail' c.pk %}" class="block px-2 py-1.5 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 text-sm">
+      <span class="font-medium">{{ c.full_name }}</span>
+      {% if c.company %}<span class="text-slate-400"> · {{ c.company.name }}</span>{% endif %}
+      {% if c.email %}<span class="text-slate-400"> · {{ c.email }}</span>{% endif %}
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% if companies %}
+  <div class="p-2">
+    <p class="px-2 pb-1 text-xs font-semibold uppercase text-slate-400">{% translate "Firmalar" %}</p>
+    {% for co in companies %}
+    <a href="{% url 'crm:company_detail' co.pk %}" class="block px-2 py-1.5 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 text-sm">
+      {{ co.name }}{% if co.domain %}<span class="text-slate-400"> · {{ co.domain }}</span>{% endif %}
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% if deals %}
+  <div class="p-2">
+    <p class="px-2 pb-1 text-xs font-semibold uppercase text-slate-400">{% translate "Fırsatlar" %}</p>
+    {% for d in deals %}
+    <a href="{% url 'crm:deal_detail' d.pk %}" class="block px-2 py-1.5 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 text-sm">{{ d.title }}</a>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>

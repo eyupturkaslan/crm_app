@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ company.name }}{% endblock %}
+{% block content %}
+<div class="space-y-6 max-w-4xl">
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <h1 class="text-xl font-semibold">{{ company.name }}</h1>
+      <div class="flex flex-wrap gap-2 mt-1 items-center text-sm text-slate-500 dark:text-slate-400">
+        {% if company.industry %}<span class="badge">{{ company.industry }}</span>{% endif %}
+        {% if company.size %}<span class="badge">{{ company.get_size_display }}</span>{% endif %}
+        {% if company.city %}<span>{{ company.city }}{% if company.country %}, {{ company.country }}{% endif %}</span>{% endif %}
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <a href="{% url 'crm:company_update' company.pk %}" class="btn-secondary">{% translate "Düzenle" %}</a>
+      <a href="{% url 'crm:company_delete' company.pk %}" class="btn-danger">{% translate "Sil" %}</a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="card">
+      <p class="text-xs text-slate-500">{% translate "Kişi Sayısı" %}</p>
+      <p class="text-2xl font-semibold">{{ contacts.count }}</p>
+    </div>
+    <div class="card">
+      <p class="text-xs text-slate-500">{% translate "Fırsat Sayısı" %}</p>
+      <p class="text-2xl font-semibold">{{ deals.count }}</p>
+    </div>
+    <div class="card">
+      <p class="text-xs text-slate-500">{% translate "Açık Boru Hattı Tutarı" %}</p>
+      <p class="text-2xl font-semibold">{{ open_pipeline_value }} ₺</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="font-semibold mb-3">{% translate "İletişim Bilgileri" %}</h2>
+    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+      <div><dt class="text-slate-500">{% translate "Telefon" %}</dt><dd>{{ company.phone|default:"—" }}</dd></div>
+      <div><dt class="text-slate-500">{% translate "Alan Adı" %}</dt><dd>{{ company.domain|default:"—" }}</dd></div>
+      <div class="sm:col-span-2"><dt class="text-slate-500">{% translate "Adres" %}</dt><dd>{{ company.address|default:"—"|linebreaksbr }}</dd></div>
+      <div><dt class="text-slate-500">{% translate "Sorumlu" %}</dt><dd>{% if company.owner %}{{ company.owner.get_full_name|default:company.owner.username }}{% else %}—{% endif %}</dd></div>
+    </dl>
+    {% if company.tags.all %}
+    <div class="flex flex-wrap gap-1 mt-3">
+      {% for tag in company.tags.all %}<span class="badge">{{ tag.name }}</span>{% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2 class="font-semibold mb-3">{% translate "Kişiler" %}</h2>
+    <table class="table">
+      <tbody>
+        {% for c in contacts %}
+        <tr>
+          <td><a href="{% url 'crm:contact_detail' c.pk %}" class="hover:underline">{{ c.full_name }}</a></td>
+          <td>{{ c.job_title|default:"—" }}</td>
+          <td>{{ c.email|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td class="text-slate-500 py-3">{% translate "Kişi yok." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2 class="font-semibold mb-3">{% translate "Fırsatlar" %}</h2>
+    <table class="table">
+      <tbody>
+        {% for d in deals %}
+        <tr>
+          <td><a href="{% url 'crm:deal_detail' d.pk %}" class="hover:underline">{{ d.title }}</a></td>
+          <td>{{ d.get_stage_display }}</td>
+          <td>{{ d.value }} {{ d.currency }}</td>
+        </tr>
+        {% empty %}
+        <tr><td class="text-slate-500 py-3">{% translate "Fırsat yok." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold">{% translate "Aktiviteler" %}</h2>
+      <a href="{% url 'crm:activity_create' %}?company={{ company.pk }}" class="btn-secondary text-xs">+ {% translate "Aktivite" %}</a>
+    </div>
+    <ul class="space-y-2">
+      {% for a in activities %}
+      <li class="text-sm border-b border-slate-100 dark:border-slate-800 pb-2">
+        <span class="font-medium">{{ a.get_kind_display }}</span> — {{ a.subject }}
+        <span class="text-slate-400"> · {{ a.created_at|date:"d.m.Y H:i" }}</span>
+      </li>
+      {% empty %}
+      <li class="text-slate-500 text-sm">{% translate "Aktivite yok." %}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

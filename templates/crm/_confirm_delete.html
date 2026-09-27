@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Silmeyi onayla" %}{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto card space-y-4">
+  <h1 class="text-lg font-semibold">{% translate "Silmeyi onayla" %}</h1>
+  <p class="text-sm text-slate-600 dark:text-slate-400">
+    {% blocktranslate with name=object %}“{{ name }}” kaydını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.{% endblocktranslate %}
+  </p>
+  <form method="post" class="flex gap-2 justify-end">
+    {% csrf_token %}
+    <a href="{{ cancel_url }}" class="btn-secondary">{% translate "Vazgeç" %}</a>
+    <button type="submit" class="btn-danger">{% translate "Sil" %}</button>
+  </form>
+</div>
+{% endblock %}

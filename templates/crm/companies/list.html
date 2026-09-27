@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Firmalar" %}{% endblock %}
+{% block content %}
+<div class="space-y-4">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h1 class="text-xl font-semibold">{% translate "Firmalar" %}</h1>
+    <a href="{% url 'crm:company_create' %}" class="btn">+ {% translate "Yeni Firma" %}</a>
+  </div>
+
+  <form class="card flex flex-wrap gap-3 items-end"
+        hx-get="{% url 'crm:company_list' %}" hx-target="#rows" hx-push-url="true"
+        hx-trigger="input changed delay:250ms from:find input[type=search], change from:find select, submit">
+    <div class="flex-1 min-w-[200px]">
+      <label class="block text-xs font-medium mb-1 text-slate-500">{% translate "Ara" %}</label>
+      <input type="search" name="q" value="{{ q }}" placeholder="{% translate 'Ad, alan adı, şehir…' %}" class="input">
+    </div>
+    <div class="min-w-[160px]">
+      <label class="block text-xs font-medium mb-1 text-slate-500">{% translate "Sektör" %}</label>
+      <select name="industry" class="input">
+        <option value="">{% translate "Tümü" %}</option>
+        {% for ind in industries %}
+        <option value="{{ ind }}" {% if ind == industry %}selected{% endif %}>{{ ind }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </form>
+
+  <div id="rows">
+    {% include "crm/companies/_table.html" %}
+  </div>
+</div>
+{% endblock %}

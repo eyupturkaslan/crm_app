@@ -61,7 +61,7 @@
       </div>
       <div>
         <dt class="text-slate-500">{% translate "Sorumlu" %}</dt>
-        <dd>{{ deal.owner.get_full_name|default:deal.owner.username|default:"—" }}</dd>
+        <dd>{% if deal.owner %}{{ deal.owner.get_full_name|default:deal.owner.username }}{% else %}—{% endif %}</dd>
       </div>
       <div>
         <dt class="text-slate-500">{% translate "Oluşturulma" %}</dt>

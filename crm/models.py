@@ -45,8 +45,12 @@ class Company(TimeStampedModel):
     city = models.CharField(_("şehir"), max_length=100, blank=True)
     country = models.CharField(_("ülke"), max_length=100, blank=True, default="Türkiye")
     owner = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
-        related_name="companies", verbose_name=_("sorumlu"),
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="companies",
+        verbose_name=_("sorumlu"),
     )
     tags = models.ManyToManyField(Tag, blank=True, related_name="companies", verbose_name=_("etiketler"))
 
@@ -89,8 +93,12 @@ class Contact(TimeStampedModel):
     phone = models.CharField(_("telefon"), max_length=30, blank=True)
     job_title = models.CharField(_("unvan"), max_length=100, blank=True)
     company = models.ForeignKey(
-        Company, on_delete=models.SET_NULL, null=True, blank=True,
-        related_name="contacts", verbose_name=_("firma"),
+        Company,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="contacts",
+        verbose_name=_("firma"),
     )
     lifecycle_stage = models.CharField(
         _("yaşam döngüsü"), max_length=20, choices=Lifecycle.choices, default=Lifecycle.LEAD
@@ -105,8 +113,12 @@ class Contact(TimeStampedModel):
     score = models.PositiveSmallIntegerField(_("skor"), default=0, editable=False)
     notes = models.TextField(_("notlar"), blank=True)
     owner = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
-        related_name="contacts", verbose_name=_("sorumlu"),
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="contacts",
+        verbose_name=_("sorumlu"),
     )
     tags = models.ManyToManyField(Tag, blank=True, related_name="contacts", verbose_name=_("etiketler"))
 
@@ -158,18 +170,31 @@ class Deal(TimeStampedModel):
 
     # Default win probability per stage (%), used for weighted pipeline forecasts.
     STAGE_PROBABILITY = {
-        "new": 10, "qualified": 25, "proposal": 50, "negotiation": 75, "won": 100, "lost": 0,
+        "new": 10,
+        "qualified": 25,
+        "proposal": 50,
+        "negotiation": 75,
+        "won": 100,
+        "lost": 0,
     }
     OPEN_STAGES = ("new", "qualified", "proposal", "negotiation")
 
     title = models.CharField(_("başlık"), max_length=200)
     company = models.ForeignKey(
-        Company, on_delete=models.SET_NULL, null=True, blank=True,
-        related_name="deals", verbose_name=_("firma"),
+        Company,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="deals",
+        verbose_name=_("firma"),
     )
     contact = models.ForeignKey(
-        Contact, on_delete=models.SET_NULL, null=True, blank=True,
-        related_name="deals", verbose_name=_("kişi"),
+        Contact,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="deals",
+        verbose_name=_("kişi"),
     )
     value = models.DecimalField(_("tutar"), max_digits=14, decimal_places=2, default=Decimal("0"))
     currency = models.CharField(_("para birimi"), max_length=3, default="TRY")
@@ -179,8 +204,12 @@ class Deal(TimeStampedModel):
     closed_at = models.DateTimeField(_("kapanış"), null=True, blank=True)
     position = models.PositiveIntegerField(_("sıra"), default=0)
     owner = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
-        related_name="deals", verbose_name=_("sorumlu"),
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="deals",
+        verbose_name=_("sorumlu"),
     )
 
     class Meta:
@@ -233,20 +262,36 @@ class Activity(TimeStampedModel):
     due_at = models.DateTimeField(_("son tarih"), null=True, blank=True)
     done = models.BooleanField(_("tamamlandı"), default=False)
     contact = models.ForeignKey(
-        Contact, on_delete=models.CASCADE, null=True, blank=True,
-        related_name="activities", verbose_name=_("kişi"),
+        Contact,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="activities",
+        verbose_name=_("kişi"),
     )
     company = models.ForeignKey(
-        Company, on_delete=models.CASCADE, null=True, blank=True,
-        related_name="activities", verbose_name=_("firma"),
+        Company,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="activities",
+        verbose_name=_("firma"),
     )
     deal = models.ForeignKey(
-        Deal, on_delete=models.CASCADE, null=True, blank=True,
-        related_name="activities", verbose_name=_("fırsat"),
+        Deal,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="activities",
+        verbose_name=_("fırsat"),
     )
     owner = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
-        related_name="activities", verbose_name=_("sorumlu"),
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="activities",
+        verbose_name=_("sorumlu"),
     )
 
     class Meta:

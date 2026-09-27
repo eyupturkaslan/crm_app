@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ contact.full_name }}{% endblock %}
+{% block content %}
+<div class="space-y-6 max-w-4xl">
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <h1 class="text-xl font-semibold">{{ contact.full_name }}</h1>
+      <div class="flex flex-wrap gap-2 mt-1 items-center text-sm text-slate-500 dark:text-slate-400">
+        {% include "crm/contacts/_lifecycle_badge.html" with contact=contact %}
+        {% if contact.job_title %}<span>{{ contact.job_title }}</span>{% endif %}
+        {% if contact.company %}
+        <span>· <a href="{% url 'crm:company_detail' contact.company.pk %}" class="hover:underline">{{ contact.company.name }}</a></span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <a href="{% url 'crm:contact_update' contact.pk %}" class="btn-secondary">{% translate "Düzenle" %}</a>
+      <a href="{% url 'crm:contact_delete' contact.pk %}" class="btn-danger">{% translate "Sil" %}</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="flex items-center justify-between mb-1">
+      <p class="text-sm font-medium">{% translate "Skor" %}</p>
+      <p class="text-sm text-slate-500">{{ contact.score }}/100</p>
+    </div>
+    <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+      <div class="h-full rounded-full bg-indigo-600" style="width: {{ contact.score }}%"></div>
+    </div>
+  </div>
+
+  <div class="card grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <dl class="space-y-2 text-sm">
+      <div><dt class="text-slate-500">{% translate "E-posta" %}</dt><dd>{{ contact.email|default:"—" }}</dd></div>
+      <div><dt class="text-slate-500">{% translate "Telefon" %}</dt><dd>{{ contact.phone|default:"—" }}</dd></div>
+      <div><dt class="text-slate-500">{% translate "Kaynak" %}</dt><dd>{{ contact.get_source_display }}</dd></div>
+      <div><dt class="text-slate-500">{% translate "Tercih Edilen Kanal" %}</dt><dd>{{ contact.get_preferred_channel_display }}</dd></div>
+      <div><dt class="text-slate-500">{% translate "Sorumlu" %}</dt><dd>{% if contact.owner %}{{ contact.owner.get_full_name|default:contact.owner.username }}{% else %}—{% endif %}</dd></div>
+    </dl>
+    <div class="space-y-3 text-sm">
+      <div>
+        <dt class="text-slate-500 inline">{% translate "Pazarlama İzni" %}:</dt>
+        {% if contact.marketing_consent %}
+        <span class="badge bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">{% translate "Onaylı" %} — {{ contact.consent_at|date:"d.m.Y" }}</span>
+        {% else %}
+        <span class="badge bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">{% translate "Onay Yok" %}</span>
+        {% endif %}
+      </div>
+      {% if contact.notes %}
+      <div><dt class="text-slate-500">{% translate "Notlar" %}</dt><dd>{{ contact.notes|linebreaksbr }}</dd></div>
+      {% endif %}
+      {% if contact.tags.all %}
+      <div class="flex flex-wrap gap-1">{% for tag in contact.tags.all %}<span class="badge">{{ tag.name }}</span>{% endfor %}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="font-semibold mb-3">{% translate "Fırsatlar" %}</h2>
+    <table class="table">
+      <tbody>
+        {% for d in deals %}
+        <tr>
+          <td><a href="{% url 'crm:deal_detail' d.pk %}" class="hover:underline">{{ d.title }}</a></td>
+          <td>{{ d.get_stage_display }}</td>
+          <td>{{ d.value }} {{ d.currency }}</td>
+        </tr>
+        {% empty %}
+        <tr><td class="text-slate-500 py-3">{% translate "Fırsat yok." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-semibold">{% translate "Aktivite Zaman Çizelgesi" %}</h2>
+      <a href="{% url 'crm:activity_create' %}?contact={{ contact.pk }}" class="btn-secondary text-xs">+ {% translate "Aktivite" %}</a>
+    </div>
+    <ul class="space-y-2">
+      {% for a in activities %}
+      <li class="text-sm border-b border-slate-100 dark:border-slate-800 pb-2">
+        <span class="font-medium">{{ a.get_kind_display }}</span> — {{ a.subject }}
+        <span class="text-slate-400"> · {{ a.created_at|date:"d.m.Y H:i" }}</span>
+        {% if a.done %}<span class="badge bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 ml-1">{% translate "Tamamlandı" %}</span>{% endif %}
+      </li>
+      {% empty %}
+      <li class="text-slate-500 text-sm">{% translate "Aktivite yok." %}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}
