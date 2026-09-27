@@ -1,0 +1,82 @@
+{% load static i18n %}<!doctype html>
+{% get_current_language as LANG %}
+<html lang="{{ LANG }}" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>{% block title %}CRM{% endblock %} · CRM</title>
+  <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
+  <script>
+    // Apply saved/OS theme before paint to avoid flashing.
+    (function () {
+      try {
+        var t = localStorage.getItem("theme");
+        if (t === "dark" || (!t && matchMedia("(prefers-color-scheme: dark)").matches)) {
+          document.documentElement.classList.add("dark");
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @custom-variant dark (&:where(.dark, .dark *));
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js" defer></script>
+  <link rel="stylesheet" href="{% static 'crm/app.css' %}">
+  {% block head %}{% endblock %}
+</head>
+<body class="h-full bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  {% if user.is_authenticated %}
+  <div class="min-h-full flex flex-col md:flex-row">
+    <aside class="md:w-60 md:shrink-0 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+      <div class="flex items-center justify-between px-4 h-14">
+        <a href="{% url 'crm:dashboard' %}" class="font-semibold text-lg tracking-tight">◆ CRM</a>
+        <button type="button" data-theme-toggle class="rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="{% translate 'Tema değiştir' %}">◐</button>
+      </div>
+      <nav class="flex md:flex-col gap-1 px-2 pb-2 overflow-x-auto text-sm">
+        {% url 'crm:dashboard' as u_dash %}{% url 'crm:deal_board' as u_deals %}{% url 'crm:contact_list' as u_contacts %}{% url 'crm:company_list' as u_companies %}{% url 'crm:activity_list' as u_acts %}
+        <a href="{{ u_dash }}" class="nav-link {% if request.path == u_dash %}is-active{% endif %}">{% translate "Panel" %}</a>
+        <a href="{{ u_deals }}" class="nav-link {% if u_deals in request.path %}is-active{% endif %}">{% translate "Fırsatlar" %}</a>
+        <a href="{{ u_contacts }}" class="nav-link {% if u_contacts in request.path %}is-active{% endif %}">{% translate "Kişiler" %}</a>
+        <a href="{{ u_companies }}" class="nav-link {% if u_companies in request.path %}is-active{% endif %}">{% translate "Firmalar" %}</a>
+        <a href="{{ u_acts }}" class="nav-link {% if u_acts in request.path %}is-active{% endif %}">{% translate "Aktiviteler" %}</a>
+        <a href="{% url 'api-docs' %}" class="nav-link">API</a>
+      </nav>
+    </aside>
+    <div class="flex-1 min-w-0 flex flex-col">
+      <header class="h-14 flex items-center gap-3 px-4 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur sticky top-0 z-10">
+        <div class="relative flex-1 max-w-xl">
+          <input id="global-search" type="search" name="q" autocomplete="off"
+                 placeholder="{% translate 'Ara… (Ctrl+K)' %}"
+                 class="input w-full"
+                 hx-get="{% url 'crm:search' %}" hx-trigger="input changed delay:250ms, search"
+                 hx-target="#search-results">
+          <div id="search-results" class="absolute left-0 right-0 mt-1 z-20"></div>
+        </div>
+        <span class="hidden sm:inline text-sm text-slate-500">{{ user.get_full_name|default:user.username }}</span>
+        <form method="post" action="{% url 'logout' %}">{% csrf_token %}
+          <button class="btn-ghost text-sm">{% translate "Çıkış" %}</button>
+        </form>
+      </header>
+      <main class="flex-1 p-4 md:p-6">
+        {% if messages %}
+        <div class="mb-4 space-y-2">
+          {% for message in messages %}
+          <div class="rounded-lg px-4 py-2 text-sm bg-emerald-50 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200">{{ message }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+  {% else %}
+  <main class="min-h-full flex items-center justify-center p-4">{% block auth_content %}{% endblock %}</main>
+  {% endif %}
+  <script src="{% static 'crm/app.js' %}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

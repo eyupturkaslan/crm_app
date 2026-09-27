@@ -1,0 +1,44 @@
+/* Shared component classes. Plain CSS so it works with the Tailwind browser build. */
+.nav-link { display: block; padding: .5rem .75rem; border-radius: .5rem; color: #475569; white-space: nowrap; }
+.nav-link:hover { background: #f1f5f9; }
+.nav-link.is-active { background: #eef2ff; color: #4338ca; font-weight: 600; }
+.dark .nav-link { color: #cbd5e1; }
+.dark .nav-link:hover { background: #1e293b; }
+.dark .nav-link.is-active { background: rgba(99, 102, 241, .2); color: #c7d2fe; }
+
+.input, .form-field input:not([type=checkbox]), .form-field select, .form-field textarea {
+  width: 100%; border: 1px solid #cbd5e1; border-radius: .5rem; padding: .5rem .75rem;
+  background: #fff; color: inherit; font-size: .875rem;
+}
+.dark .input, .dark .form-field input:not([type=checkbox]), .dark .form-field select, .dark .form-field textarea {
+  background: #0f172a; border-color: #334155;
+}
+.input:focus, .form-field :is(input, select, textarea):focus { outline: 2px solid #6366f1; outline-offset: 0; }
+
+.btn { display: inline-flex; align-items: center; gap: .375rem; padding: .5rem .875rem; border-radius: .5rem;
+  font-size: .875rem; font-weight: 600; background: #4f46e5; color: #fff; }
+.btn:hover { background: #4338ca; }
+.btn-secondary { display: inline-flex; align-items: center; gap: .375rem; padding: .5rem .875rem; border-radius: .5rem;
+  font-size: .875rem; font-weight: 500; border: 1px solid #cbd5e1; }
+.dark .btn-secondary { border-color: #334155; }
+.btn-danger { display: inline-flex; padding: .5rem .875rem; border-radius: .5rem; font-size: .875rem; font-weight: 600; background: #dc2626; color: #fff; }
+.btn-ghost { padding: .375rem .625rem; border-radius: .5rem; color: #64748b; }
+.btn-ghost:hover { background: #f1f5f9; }
+.dark .btn-ghost:hover { background: #1e293b; }
+
+.card { background: #fff; border: 1px solid #e2e8f0; border-radius: .75rem; padding: 1rem; }
+.dark .card { background: #0f172a; border-color: #1e293b; }
+
+.badge { display: inline-flex; align-items: center; padding: .125rem .5rem; border-radius: 9999px; font-size: .75rem; font-weight: 500;
+  background: #f1f5f9; color: #334155; }
+.dark .badge { background: #1e293b; color: #cbd5e1; }
+
+.table { width: 100%; font-size: .875rem; }
+.table th { text-align: left; font-weight: 600; color: #64748b; padding: .5rem .75rem; border-bottom: 1px solid #e2e8f0; }
+.table td { padding: .625rem .75rem; border-bottom: 1px solid #f1f5f9; }
+.dark .table th { border-color: #1e293b; }
+.dark .table td { border-color: #1e293b; }
+
+.htmx-indicator { opacity: 0; transition: opacity .2s; }
+.htmx-request .htmx-indicator, .htmx-request.htmx-indicator { opacity: 1; }
+.sortable-ghost { opacity: .4; }

@@ -1,0 +1,24 @@
+{% load i18n %}{# Generic form renderer. Include with: form, cancel_url, submit_label (optional) #}
+<form method="post" enctype="multipart/form-data" class="card space-y-4 max-w-2xl">
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="text-sm text-red-600">{{ form.non_field_errors }}</div>{% endif %}
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    {% for field in form.visible_fields %}
+    <div class="form-field {% if field.field.widget.input_type == 'checkbox' %}flex items-center gap-2{% endif %} {% if field.field.widget.attrs.rows or field.name == 'address' %}sm:col-span-2{% endif %}">
+      {% if field.field.widget.input_type == 'checkbox' %}
+        {{ field }} <label for="{{ field.id_for_label }}" class="text-sm">{{ field.label }}</label>
+      {% else %}
+        <label for="{{ field.id_for_label }}" class="block text-sm font-medium mb-1">{{ field.label }}</label>
+        {{ field }}
+      {% endif %}
+      {% if field.help_text %}<p class="text-xs text-slate-500 mt-1">{{ field.help_text }}</p>{% endif %}
+      {% for error in field.errors %}<p class="text-xs text-red-600 mt-1">{{ error }}</p>{% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+  {% for field in form.hidden_fields %}{{ field }}{% endfor %}
+  <div class="flex gap-2 justify-end">
+    {% if cancel_url %}<a href="{{ cancel_url }}" class="btn-secondary">{% translate "Vazgeç" %}</a>{% endif %}
+    <button class="btn">{{ submit_label|default:_("Kaydet") }}</button>
+  </div>
+</form>
