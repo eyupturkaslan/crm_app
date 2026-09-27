@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load i18n humanize %}
+
+{% block title %}{{ deal.title }}{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-4xl">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <a href="{% url 'crm:deal_board' %}" class="text-sm text-slate-500 hover:underline">← {% translate "Fırsatlar" %}</a>
+      <h1 class="text-xl font-semibold mt-1">{{ deal.title }}</h1>
+    </div>
+    <div class="flex gap-2">
+      <a href="{% url 'crm:deal_update' deal.pk %}" class="btn-secondary">{% translate "Düzenle" %}</a>
+      <a href="{% url 'crm:deal_delete' deal.pk %}" class="btn-danger">{% translate "Sil" %}</a>
+    </div>
+  </div>
+
+  {% if deal.stage != 'lost' %}
+  <div class="card">
+    <ol class="flex flex-wrap gap-2 text-xs">
+      {% for step in stepper %}
+      <li class="px-3 py-1.5 rounded-full {% if step.current %}bg-indigo-600 text-white{% elif step.reached %}bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-200{% else %}bg-slate-100 text-slate-500 dark:bg-slate-800{% endif %}">{{ step.label }}</li>
+      {% endfor %}
+    </ol>
+  </div>
+  {% else %}
+  <span class="badge bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">{% translate "Kaybedildi" %}</span>
+  {% endif %}
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="card">
+      <p class="text-xs text-slate-500">{% translate "Tutar" %}</p>
+      <p class="text-lg font-semibold mt-1 tabular-nums">{{ deal.value|intcomma }} {{ deal.currency }}</p>
+    </div>
+    <div class="card">
+      <p class="text-xs text-slate-500">{% translate "Ağırlıklı Değer" %}</p>
+      <p class="text-lg font-semibold mt-1 tabular-nums">{{ deal.weighted_value|intcomma }} {{ deal.currency }}</p>
+      <p class="text-xs text-slate-400 mt-0.5">%{{ deal.probability }}</p>
+    </div>
+    <div class="card">
+      <p class="text-xs text-slate-500">{% translate "Aşama" %}</p>
+      <p class="text-lg font-semibold mt-1">{{ deal.get_stage_display }}</p>
+    </div>
+    <div class="card">
+      <p class="text-xs text-slate-500">{% translate "Beklenen Kapanış" %}</p>
+      <p class="text-lg font-semibold mt-1">{{ deal.expected_close|date:"d M Y"|default:"—" }}</p>
+    </div>
+  </div>
+
+  <div class="card space-y-2">
+    <h2 class="font-semibold text-sm">{% translate "Detaylar" %}</h2>
+    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+      <div>
+        <dt class="text-slate-500">{% translate "Firma" %}</dt>
+        <dd>{% if deal.company %}<a href="{{ deal.company.get_absolute_url }}" class="hover:underline text-indigo-600 dark:text-indigo-400">{{ deal.company }}</a>{% else %}—{% endif %}</dd>
+      </div>
+      <div>
+        <dt class="text-slate-500">{% translate "Kişi" %}</dt>
+        <dd>{% if deal.contact %}<a href="{{ deal.contact.get_absolute_url }}" class="hover:underline text-indigo-600 dark:text-indigo-400">{{ deal.contact }}</a>{% else %}—{% endif %}</dd>
+      </div>
+      <div>
+        <dt class="text-slate-500">{% translate "Sorumlu" %}</dt>
+        <dd>{{ deal.owner.get_full_name|default:deal.owner.username|default:"—" }}</dd>
+      </div>
+      <div>
+        <dt class="text-slate-500">{% translate "Oluşturulma" %}</dt>
+        <dd>{{ deal.created_at|date:"d M Y" }}</dd>
+      </div>
+    </dl>
+  </div>
+
+  <div class="card space-y-3">
+    <div class="flex items-center justify-between">
+      <h2 class="font-semibold text-sm">{% translate "Aktiviteler" %}</h2>
+      <a href="{% url 'crm:activity_create' %}?deal={{ deal.pk }}&next={{ request.path|urlencode }}" class="btn-secondary text-xs">+ {% translate "Aktivite Ekle" %}</a>
+    </div>
+    <div class="relative border-l border-slate-200 dark:border-slate-800 pl-4 space-y-4">
+      {% for activity in activities %}
+      <div class="relative">
+        <span class="absolute -left-[1.4rem] top-1 h-2.5 w-2.5 rounded-full bg-indigo-500"></span>
+        <p class="text-sm font-medium {% if activity.done %}line-through text-slate-400{% endif %}">{{ activity.subject }}</p>
+        <p class="text-xs text-slate-500">
+          {{ activity.get_kind_display }} · {{ activity.created_at|date:"d M Y H:i" }}
+          {% if activity.due_at %} · {% translate "Son" %}: {{ activity.due_at|date:"d M Y H:i" }}{% endif %}
+        </p>
+        {% if activity.body %}<p class="text-sm mt-1">{{ activity.body|linebreaksbr }}</p>{% endif %}
+      </div>
+      {% empty %}
+      <p class="text-sm text-slate-500">{% translate "Henüz aktivite yok." %}</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

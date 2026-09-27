@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Aktiviteler" %}{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h1 class="text-xl font-semibold">{% translate "Aktiviteler" %}</h1>
+    <a href="{% url 'crm:activity_create' %}?next={{ request.get_full_path|urlencode }}" class="btn">+ {% translate "Yeni Aktivite" %}</a>
+  </div>
+
+  <div class="card space-y-4">
+    <div class="flex flex-wrap gap-1 text-sm">
+      {% for key, label in tab_choices %}
+      <a href="?filter={{ key }}&kind={{ kind }}&mine={{ mine|yesno:"1," }}"
+         class="px-3 py-1.5 rounded-md {% if filter_key == key %}bg-indigo-600 text-white{% else %}btn-secondary{% endif %}">{{ label }}</a>
+      {% endfor %}
+    </div>
+    <form method="get" class="flex flex-wrap items-center gap-2">
+      <input type="hidden" name="filter" value="{{ filter_key }}">
+      <select name="kind" class="input w-auto" onchange="this.form.submit()">
+        <option value="">{% translate "Tüm türler" %}</option>
+        {% for key, label in kinds %}
+        <option value="{{ key }}" {% if key == kind %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <label class="flex items-center gap-1 text-sm">
+        <input type="checkbox" name="mine" value="1" {% if mine %}checked{% endif %} onchange="this.form.submit()">
+        {% translate "Sadece bana ait" %}
+      </label>
+    </form>
+
+    <div>
+      {% for activity in page_obj %}
+        {% include "crm/activities/_row.html" %}
+      {% empty %}
+        <p class="text-sm text-slate-500 py-6 text-center">{% translate "Aktivite bulunamadı." %}</p>
+      {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <div class="flex items-center justify-between text-sm pt-2">
+      <span class="text-slate-500">{% blocktranslate count num=page_obj.paginator.count %}{{ num }} sonuç{% plural %}{{ num }} sonuç{% endblocktranslate %}</span>
+      <div class="flex gap-1">
+        {% if page_obj.has_previous %}
+        <a class="btn-secondary" href="?filter={{ filter_key }}&kind={{ kind }}&mine={{ mine|yesno:"1," }}&page={{ page_obj.previous_page_number }}">{% translate "Önceki" %}</a>
+        {% endif %}
+        {% if page_obj.has_next %}
+        <a class="btn-secondary" href="?filter={{ filter_key }}&kind={{ kind }}&mine={{ mine|yesno:"1," }}&page={{ page_obj.next_page_number }}">{% translate "Sonraki" %}</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

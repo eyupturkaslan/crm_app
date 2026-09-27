@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Fırsatı Sil" %}{% endblock %}
+
+{% block content %}
+<div class="card max-w-md space-y-4">
+  <h1 class="text-lg font-semibold">{% translate "Fırsatı silmek istediğinize emin misiniz?" %}</h1>
+  <p class="text-sm text-slate-500">{{ object }}</p>
+  <form method="post" class="flex justify-end gap-2">
+    {% csrf_token %}
+    <a href="{{ cancel_url }}" class="btn-secondary">{% translate "Vazgeç" %}</a>
+    <button class="btn-danger" type="submit">{% translate "Sil" %}</button>
+  </form>
+</div>
+{% endblock %}

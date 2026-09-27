@@ -1,0 +1,19 @@
+{% load i18n %}
+<div id="activity-row-{{ activity.pk }}" class="flex items-center gap-3 py-2 border-b border-slate-100 dark:border-slate-800 last:border-0">
+  <button type="button"
+          hx-post="{% url 'crm:activity_toggle' activity.pk %}"
+          hx-target="#activity-row-{{ activity.pk }}" hx-swap="outerHTML"
+          class="shrink-0 h-5 w-5 rounded-full border flex items-center justify-center text-xs
+                 {% if activity.done %}bg-emerald-500 border-emerald-500 text-white{% else %}border-slate-300 dark:border-slate-600{% endif %}"
+          aria-label="{% translate 'Tamamlandı olarak işaretle' %}">{% if activity.done %}✓{% endif %}</button>
+  <div class="flex-1 min-w-0">
+    <p class="text-sm font-medium truncate {% if activity.done %}line-through text-slate-400{% endif %}">{{ activity.subject }}</p>
+    <p class="text-xs text-slate-500 truncate">
+      {{ activity.get_kind_display }}{% if activity.deal %} · <a href="{{ activity.deal.get_absolute_url }}" class="hover:underline">{{ activity.deal }}</a>{% endif %}{% if activity.contact %} · {{ activity.contact }}{% endif %}{% if activity.company %} · {{ activity.company }}{% endif %}
+    </p>
+  </div>
+  {% if activity.due_at %}
+  <span class="badge shrink-0 {% if activity.is_overdue %}bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300{% endif %}">{{ activity.due_at|date:"d M H:i" }}</span>
+  {% endif %}
+  <a href="{% url 'crm:activity_update' activity.pk %}?next={{ request.get_full_path|urlencode }}" class="btn-ghost text-xs">{% translate "Düzenle" %}</a>
+</div>

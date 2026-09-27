@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load i18n humanize %}
+
+{% block title %}{% translate "Fırsatlar" %}{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h1 class="text-xl font-semibold">{% translate "Fırsatlar" %}</h1>
+    <a href="{% url 'crm:deal_create' %}" class="btn">+ {% translate "Yeni Fırsat" %}</a>
+  </div>
+
+  <form method="get" class="flex flex-wrap items-center gap-2">
+    <input type="search" name="q" value="{{ q }}" placeholder="{% translate 'Fırsat, firma veya kişi ara' %}" class="input max-w-xs">
+    <label class="flex items-center gap-1 text-sm">
+      <input type="checkbox" name="owner" value="me" {% if owner_filter == 'me' %}checked{% endif %} onchange="this.form.submit()">
+      {% translate "Sadece benim fırsatlarım" %}
+    </label>
+    <button class="btn-secondary" type="submit">{% translate "Filtrele" %}</button>
+  </form>
+
+  <div class="flex gap-4 overflow-x-auto pb-4">
+    {% for column in columns %}
+    <div class="w-72 shrink-0 flex flex-col">
+      <div class="flex items-center justify-between px-1 mb-2">
+        <h2 class="text-sm font-semibold">{{ column.label }} <span class="text-slate-400">({{ column.count }})</span></h2>
+        <span class="text-xs text-slate-500 tabular-nums" data-column-total>{{ column.total|intcomma }} ₺</span>
+      </div>
+      <div class="board-column flex-1 min-h-[200px] space-y-2 rounded-lg bg-slate-100/60 dark:bg-slate-900/40 p-2" data-stage="{{ column.stage }}">
+        {% for deal in column.deals %}
+        <a href="{{ deal.get_absolute_url }}" class="card block p-3 space-y-1 cursor-grab" data-deal-id="{{ deal.pk }}">
+          <p class="text-sm font-medium truncate">{{ deal.title }}</p>
+          <p class="text-xs text-slate-500 truncate">{{ deal.company|default:"—" }}</p>
+          <div class="flex items-center justify-between text-xs pt-1">
+            <span class="font-semibold tabular-nums">{{ deal.value|intcomma }} {{ deal.currency }}</span>
+            {% if deal.owner %}<span class="badge">{{ deal.owner.first_name|slice:":1"|upper }}{{ deal.owner.last_name|slice:":1"|upper }}</span>{% endif %}
+          </div>
+          {% if deal.expected_close %}<p class="text-xs text-slate-400">{{ deal.expected_close|date:"d M Y" }}</p>{% endif %}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  function getCookie(name) {
+    var match = document.cookie.match("(^|;\\s*)" + name + "=([^;]*)");
+    return match ? decodeURIComponent(match[2]) : "";
+  }
+  var csrftoken = getCookie("csrftoken");
+  var moveUrlTemplate = "{% url 'crm:deal_move' 0 %}";
+
+  document.querySelectorAll(".board-column").forEach(function (col) {
+    new Sortable(col, {
+      group: "deals",
+      animation: 150,
+      ghostClass: "sortable-ghost",
+      onEnd: function (evt) {
+        var card = evt.item;
+        var targetColumn = evt.to;
+        var stage = targetColumn.dataset.stage;
+        var position = evt.newIndex;
+        var dealId = card.dataset.dealId;
+        var url = moveUrlTemplate.replace("/0/", "/" + dealId + "/");
+
+        fetch(url, {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": csrftoken,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: "stage=" + encodeURIComponent(stage) + "&position=" + position,
+        })
+          .then(function (r) { return r.ok ? r.json() : Promise.reject(r); })
+          .then(function (data) {
+            var wrapper = targetColumn.closest("div.flex.flex-col");
+            var totalEl = wrapper && wrapper.querySelector("[data-column-total]");
+            if (totalEl && data.value !== undefined) {
+              totalEl.textContent = Number(data.value).toLocaleString("tr-TR") + " ₺";
+            }
+          })
+          .catch(function () { window.location.reload(); });
+      },
+    });
+  });
+});
+</script>
+{% endblock %}
